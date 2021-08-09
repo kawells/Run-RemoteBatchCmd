@@ -47,15 +47,13 @@ $newTrustedHost = "*.$domain"
 $curTrustedHosts = (Get-Item WSMan:\localhost\Client\TrustedHosts).value
 if ($curTrustedHosts) {
     $newTrustedHosts = "$curTrustedHosts, $newTrustedHost" 
-    Set-Item WSMan:\localhost\Client\TrustedHosts -Value $newTrustedHosts }
-else { Set-Item WSMan:\localhost\Client\TrustedHosts -Value "$newTrustedHost" }
+    Set-Item WSMan:\localhost\Client\TrustedHosts -Value $newTrustedHosts -Force}
+else { Set-Item WSMan:\localhost\Client\TrustedHosts -Value "$newTrustedHost" -Force}
 
 # Run all commands on all computers in list
 Write-Host "Running commands on remote computers...`n"
 foreach ($computer in $computerList) {
     if(Test-Connection $computer -ErrorAction SilentlyContinue -ErrorVariable cmdError){ # Only proceed if computer is remotely accessible
-        # Add computer to trusted hosts
-        NARA-B05826
         # Try to start WinRM on remote computer or move on to next computer
         try { 
             Write-Host "Starting WinRM service on $computer..."
@@ -95,8 +93,8 @@ foreach ($computer in $computerList) {
             if ($cmdError) { $errorLog += @( [pscustomobject]@{ComputerName=$computer;Command="WinRM";Error=$($cmdError);Time=$(Get-TimeStamp)} ) } # Write to log if WinRM fails
         }
         # Revert trusted hosts to before script ran
-        if ($curTrustedHosts) { Set-Item WSMan:\localhost\Client\TrustedHosts $curTrustedHosts }
-        else { Clear-Item WSMan:\localhost\Client\TrustedHosts }
+        if ($curTrustedHosts) { Set-Item WSMan:\localhost\Client\TrustedHosts $curTrustedHosts -Force}
+        else { Clear-Item WSMan:\localhost\Client\TrustedHosts -Force}
     }
     else {
         Write-Host "Error: $computer is not reachable."
