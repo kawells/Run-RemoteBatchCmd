@@ -7,7 +7,7 @@ Set-ExecutionPolicy -ExecutionPolicy bypass -Scope Process
 function Get-TimeStamp { return "[{0:MM/dd/yy} {0:HH:mm:ss}]" -f (Get-Date) }
 
 # Declare vars
-$domain = "win.nara.gov" # Name of domain containing computers, used to temporarily add as trusted host for PSSession
+$domain = "<your domain here>" # Name of domain containing computers, used to temporarily add as trusted host for PSSession
 $computerList = "batchcmdcomputerlist.txt" # Name of text file with computer list, names only. IP addresses do not work
 $commandList = "batchcmdcommands.ps1" # Name of ps1 file with cmd list
 $logFileName = "batchcmdresults.csv" # Name of csv log
