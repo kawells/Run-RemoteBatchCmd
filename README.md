@@ -2,6 +2,7 @@
 A PowerShell script that will run batch scripts/commands on remote PCs and generate a report of success/fail.
 
 ## Requirements
+* Add your organization's **domain** to the $domain variable in Run-RemoteBatchCmd.ps1
 * PS Remoting must be enabled on the remote computers.
 * **batchcmdcomputerlist.txt** - This is a list of computers on which the commands will be run
 * **BatchCmdCommands.ps1** - This is the script/commands that will run on each computer
