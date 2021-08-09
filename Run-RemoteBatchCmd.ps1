@@ -1,5 +1,27 @@
-# Author: Kevin Wells
-# Requirements: Remote computers must have PS remoting enabled
+<#
+.NAME
+    Active Directory Tools
+.SYNOPSIS
+    This script will run all PowerShell commands that you define in BatchCmdCommands.ps1 on all computers
+    that you define in batchcmdcomputerlist.txt. It will generate a report.csv, which  is used to track the
+    success/failure on each computer. Success is defined as all commands were processed without any errors.
+    Failure is defined as any command on one computer returned an error.
+    
+    On subsequent runs of this script, if the report.csv is still present, it will load the failed computers and
+    attempt to run the PowerShell commands on those computers again, then update the report with the current
+    status. It also logs all errors to batchcmdresults.csv, and will append to this log on subsequent runs
+    of this script.
+.NOTES
+    Author: Kevin Wells
+    Script must be run as domain user with admin rights.
+    Remote computers must be configured to support PowerShell remoting.
+    All related files must be placed in the same folder as this script.
+    Change the $domain variable below to match the domain of your organization.
+    1.0 | 09/09/2021 | Kevin Wells
+        Initial Version
+.LINK
+    github.com/kawells
+#>
 
 Set-ExecutionPolicy -ExecutionPolicy bypass -Scope Process
 
