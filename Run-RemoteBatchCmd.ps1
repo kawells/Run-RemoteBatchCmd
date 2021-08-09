@@ -1,4 +1,4 @@
-﻿# Author: Kevin Wells
+# Author: Kevin Wells
 # Requirements: Remote computers must have PS remoting enabled
 
 Set-ExecutionPolicy -ExecutionPolicy bypass -Scope Process
@@ -7,9 +7,9 @@ Set-ExecutionPolicy -ExecutionPolicy bypass -Scope Process
 function Get-TimeStamp { return "[{0:MM/dd/yy} {0:HH:mm:ss}]" -f (Get-Date) }
 
 # Declare vars
-$domain = "<your domain here>" # Name of domain containing computers, used to temporarily add as trusted host for PSSession
+$domain = "yourdomain" # Name of domain containing computers, used to temporarily add as trusted host for PSSession
 $computerList = "batchcmdcomputerlist.txt" # Name of text file with computer list, names only. IP addresses do not work
-$commandList = "batchcmdcommands.ps1" # Name of ps1 file with cmd list
+$commandList = "BatchCmdCommands.ps1" # Name of ps1 file with cmd list
 $logFileName = "batchcmdresults.csv" # Name of csv log
 $reportFileName = "report.csv" # Name of report file
 $computerListPath = "$PSScriptRoot\$computerList" 
@@ -108,8 +108,8 @@ foreach ($computer in (($report | Where-Object { $_.Status -eq "Fail" } ).Comput
                         $result = ( Invoke-Command @parameters | Format-Table -AutoSize )
                         $cmdError = "Success"
                         $errorLog += @( [pscustomobject]@{ComputerName=$computer;Command=$command;Error=$($cmdError);Time=$(Get-TimeStamp) } ) # Write to overall log
-                        Write-Host "Successfully ran command `"$command`" on $computer." # To suppress result output, comment out this line
-                        # $result # To suppress result output, comment out this line
+                        Write-Host "Successfully ran command `"$command`" on $computer."
+                        $result # To suppress result output, comment out this line
                     }
                     catch {
                         Write-Host "Error: unable to run `"$command`" on $computer. See log for details."
@@ -134,22 +134,19 @@ foreach ($computer in (($report | Where-Object { $_.Status -eq "Fail" } ).Comput
         # Revert trusted hosts to before script ran
         if ($curTrustedHosts) { Set-Item WSMan:\localhost\Client\TrustedHosts $curTrustedHosts -Force}
         else { Clear-Item WSMan:\localhost\Client\TrustedHosts -Force}
-        # If there were no errors, save result to report
-        if (!($cmdError)) {
-            ($report | Where-Object { $_.ComputerName -eq $computer }).Status = "Success"
-            ($report | Where-Object { $_.ComputerName -eq $computer }).Time = $(Get-TimeStamp)
-        }
-        else { 
-            ($report | Where-Object { $_.ComputerName -eq $computer }).Status = "Fail"
-            ($report | Where-Object { $_.ComputerName -eq $computer }).Time = $(Get-TimeStamp)
-        }
     }
     else {
         Write-Host "Error: $computer is not reachable."
-        if ($cmdError) {
-            $errorLog += @( [pscustomobject]@{ComputerName=$computer;Command="Ping";Error=$($cmdError);Time=$(Get-TimeStamp)} ) }
-            ($report | Where-Object { $_.ComputerName -eq $computer }).Status = "Fail"
-            ($report | Where-Object { $_.ComputerName -eq $computer }).Time = $(Get-TimeStamp)
+        if ($cmdError) { $errorLog += @( [pscustomobject]@{ComputerName=$computer;Command="Ping";Error=$($cmdError);Time=$(Get-TimeStamp)} ) }
+    }
+    # Updating report with Success/Fail
+    if (!($errorLog | Where-Object { $_.ComputerName -eq $computer } | Where-Object { $_.Error -ne "Success" } )) {
+        ($report | Where-Object { $_.ComputerName -eq $computer }).Status = "Success"
+        ($report | Where-Object { $_.ComputerName -eq $computer }).Time = $(Get-TimeStamp)
+    }
+    else { 
+        ($report | Where-Object { $_.ComputerName -eq $computer }).Status = "Fail"
+        ($report | Where-Object { $_.ComputerName -eq $computer }).Time = $(Get-TimeStamp)
     }
 }
 
