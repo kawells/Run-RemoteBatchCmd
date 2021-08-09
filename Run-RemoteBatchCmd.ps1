@@ -4,8 +4,9 @@
 function Get-TimeStamp { return "[{0:MM/dd/yy} {0:HH:mm:ss}]" -f (Get-Date) }
 
 # Declare vars
-$computerList = 'batchcmdcomputerlist.txt' # Name of text file with computer list
-$commandList = 'batchcmdcommands.txt' # Name of text file with cmd list
+$domain = "win.nara.gov" # Name of domain containing computers, used to temporarily add as trusted host for PSSession
+$computerList = "batchcmdcomputerlist.txt" # Name of text file with computer list, names only. IP addresses do not work
+$commandList = "batchcmdcommands.txt" # Name of text file with cmd list
 $logFileName = "batchcmdresults.csv" # Name of csv log
 $logFilePath = $PSScriptRoot + "\" + $logFileName
 $computerListPath = $PSScriptRoot + '\' + $computerList 
@@ -41,10 +42,20 @@ try {
 }
 catch { Write-Host "Error: Starting local WinRM service failed."; Exit }
 
+# Adding domain to trusted hosts list or creating new entry if list does not already exist
+$newTrustedHost = "*.$domain"
+$curTrustedHosts = (Get-Item WSMan:\localhost\Client\TrustedHosts).value
+if ($curTrustedHosts) {
+    $newTrustedHosts = "$curTrustedHosts, $newTrustedHost" 
+    Set-Item WSMan:\localhost\Client\TrustedHosts -Value $newTrustedHosts }
+else { Set-Item WSMan:\localhost\Client\TrustedHosts -Value "$newTrustedHost" }
+
 # Run all commands on all computers in list
 Write-Host "Running commands on remote computers...`n"
 foreach ($computer in $computerList) {
     if(Test-Connection $computer -ErrorAction SilentlyContinue -ErrorVariable cmdError){ # Only proceed if computer is remotely accessible
+        # Add computer to trusted hosts
+        NARA-B05826
         # Try to start WinRM on remote computer or move on to next computer
         try { 
             Write-Host "Starting WinRM service on $computer..."
@@ -81,8 +92,11 @@ foreach ($computer in $computerList) {
         }
         catch {
             Write-Host "Error: Unable to start WinRM service on $computer."
-            if ($cmdError) { $errorLog += @( [pscustomobject]@{ComputerName=$computer;Command="WinRM";Error=$($cmdError);Time=$(Get-TimeStamp)} ) }
-        } # Write to log if WinRM fails
+            if ($cmdError) { $errorLog += @( [pscustomobject]@{ComputerName=$computer;Command="WinRM";Error=$($cmdError);Time=$(Get-TimeStamp)} ) } # Write to log if WinRM fails
+        }
+        # Revert trusted hosts to before script ran
+        if ($curTrustedHosts) { Set-Item WSMan:\localhost\Client\TrustedHosts $curTrustedHosts }
+        else { Clear-Item WSMan:\localhost\Client\TrustedHosts }
     }
     else {
         Write-Host "Error: $computer is not reachable."
