@@ -1,6 +1,6 @@
 <#
 .NAME
-    Active Directory Tools
+    Run-RemoteBatchCmd
 .SYNOPSIS
     This script will run all PowerShell commands that you define in BatchCmdCommands.ps1 on all computers
     that you define in batchcmdcomputerlist.txt. It will generate a report.csv, which  is used to track the
