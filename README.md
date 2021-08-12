@@ -1,12 +1,19 @@
 # Run-RemoteBatchCmd
-A PowerShell script that will run batch scripts/commands on remote PCs and generate a report of success/fail.
+A PowerShell script that will upload files to and run batch scripts/commands on remote PCs, then generate a success/fail report.
 
 ## Requirements
-* Add your organization's **domain** to the $domain variable in Run-RemoteBatchCmd.ps1
-* If uploading files to a remote directory, add the **directory path** to the $remoteDir variable in Run-RemoteBatchCmd.ps1
-* PS Remoting must be enabled on the remote computers.
+* **PS Remoting must be enabled on the remote computers.**
+* **Update $domain variable** - Add your organization's domain to the $domain variable in Run-RemoteBatchCmd.ps1
+* **Update $remoteDir variable** - If uploading files to a remote directory, add the directory path to the $remoteDir variable in Run-RemoteBatchCmd.ps1
 * **BatchCmdCompList.txt** - This is a list of computers on which the commands will be run
 * **BatchCmdCommands.ps1** - This is the script/commands that will run on each computer
  
 ## Summary
-This script will first generate a *BatchCmd-Report.csv* that is used to track the status of running the commands on each computer. Upon each run, it will update the report with (Success/Fail) and current time depending on whether any of the commands returned an error. It also logs any errors to *BatchCmd-Results.csv*.
+This script iterates through a list of computers, uploading files if necessary, and runs commands defined in **BatchCmdCommands.ps1** on each computer.
+
+When connecting to a remote computer, this script will first test the connection to make sure the computer is reachable. It will then attempt to start the remote WinRM service, start a PSSession with the remote computer, then upload any file(s) specified by the user. If all of these are successful, it will run all commands defined in *BatchCmdCommands.ps1*. If all commands complete successfully, the computer will be marked successful in *BatchCmd-Report.csv*. If any of the commands return an error, the error is logged to *BatchCmd-Results.csv*. Any uploaded files are deleted upon completion of the commands, then the PSSession is closed.
+
+Upon each subsequent run of this script, *BatchCmd-Report.csv* will be reimported and only computers that were previously failed will be attempted again.
+
+
+
