@@ -99,7 +99,11 @@ try {
             Write-Host "Getting computer list successful."
             foreach ($computer in $computerList) { $report += @( [pscustomobject]@{ComputerName=$computer;Status="Fail";Time=$null} ) }
         }
-        catch { Write-Error "Getting computer list failed. Check that file exists. Exiting."; Exit }
+        catch {
+            Write-Error "Getting computer list failed. Check that file exists. Exiting.";
+            Remove-Item "$PSScriptRoot\$reportFileName" -Force -Confirm:$false # Delete null report so it does not get reimported
+            Exit
+        }
     }
     else {
         Write-Host "Importing results of previous report..."
@@ -110,7 +114,7 @@ try {
 catch { Write-Error "Unable to import report. Check that report file is not currently open. Exiting."; Exit }
 
 # Test to see if there are any computers that are still failed
-if (!($report | Where-Object { $_.Status -eq "Fail" })) { Write-Host "`nAll computers in the report are successful. No further work necessary."; Exit }
+if ((!($report | Where-Object { $_.Status -eq "Fail" })) -And ($report -ne $null)) { Write-Host "`nAll computers in the report are successful. No further work necessary. Exiting."; Exit }
 
 # Import command list separated by line or exit
 try {
@@ -118,7 +122,11 @@ try {
     $commandList = (Get-Content $commandListPath -ErrorAction Stop)
     Write-Host "Getting command list successful."
 }
-catch { Write-Error "Getting command list failed. Check that file exists. Exiting."; Exit }
+catch {
+    Write-Error "Getting command list failed. Check that file exists. Exiting."
+    Remove-Item "$PSScriptRoot\$reportFileName" -Force -Confirm:$false # Delete null report so it does not get reimported
+    Exit
+}
 
 # Start local WinRM service or exit
 try {
@@ -268,3 +276,8 @@ try {
     Write-Host "Updated report at $reportFilePath."
 }
 catch { Write-Error "Updating report failed. Check that report file is not currently open." }
+
+# Display overall results
+Write-Host "`n"
+Write-Host "Overall Results:"
+$report | Format-Table
