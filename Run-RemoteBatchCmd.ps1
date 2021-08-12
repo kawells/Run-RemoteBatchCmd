@@ -3,13 +3,13 @@
     Run-RemoteBatchCmd
 .SYNOPSIS
     This script will run all PowerShell commands that you define in BatchCmdCommands.ps1 on all computers
-    that you define in batchcmdcomputerlist.txt. It will generate a report.csv, which is used to track the
-    success/failure on each computer. Success is defined as all commands were processed without any errors.
-    Failure is defined as any command on one computer returned an error.
+    that you define in BatchCmdCompList.txt. On first run, it will generate BatchCmd-Report.csv, which is
+    used to track the success/failure on each computer. Success is defined as all commands were processed
+    without any errors. Failure is defined as any command on one computer returned an error.
     
-    On subsequent runs of this script, if the report.csv is still present, it will load the failed computers and
+    On subsequent runs of this script, if the BatchCmd-Report.csv is still present, it will load the failed computers and
     attempt to run the PowerShell commands on those computers again, then update the report with the current
-    status. It also logs all errors to batchcmdresults.csv, and will append to this log on subsequent runs
+    status. It also logs all errors to BatchCmd-Results.csv, and will append to this log on subsequent runs
     of this script.
 .NOTES
     Author: Kevin Wells
