@@ -3,10 +3,10 @@ A PowerShell script that will upload files to and run batch scripts/commands on 
 
 ## Requirements
 * **PS Remoting must be enabled on the remote computers.**
-* **Update $domain variable** - Add your organization's domain to the $domain variable in Run-RemoteBatchCmd.ps1
-* **Update $remoteDir variable** - If uploading files to a remote directory, add the directory path to the $remoteDir variable in Run-RemoteBatchCmd.ps1
-* **BatchCmdCompList.txt** - This is a list of computers on which the commands will be run
-* **BatchCmdCommands.ps1** - This is the script/commands that will run on each computer
+* **Update $domain variable** - Add your organization's domain to the $domain variable
+* **Update $remoteDir variable** - If uploading files to a remote directory, add the directory path to the $remoteDir variable
+* **BatchCmdCompList.txt** - This is a list of computers on which the commands will be run, separated by line
+* **BatchCmdCommands.ps1** - This is the script/commands that will run on each computer, separated by line
  
 ## Summary
 This script iterates through a list of computers, uploading files if necessary, and runs commands defined in **BatchCmdCommands.ps1** on each computer.
