@@ -16,8 +16,5 @@ When connecting to a remote computer, this script will first test the connection
 Upon each subsequent run of this script, *BatchCmd-Report.csv* is reimported and only computers that were previously failed will be attempted again. Errors are appended to *BatchCmd-Results.csv*.
 
 When using a new set of computers, you must update *BatchCmdCompList.txt* and delete *BatchCmd-Report.csv*.
+
 When using a new set of commands, you must update *BatchCmdCommands.ps1* and delete *BatchCmd-Report.csv*.
-
-
-
-
