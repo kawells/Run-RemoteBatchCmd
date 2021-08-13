@@ -70,6 +70,7 @@ $computerList =     "BatchCmdCompList.txt" # Name of text file with computer lis
 $commandList =      "BatchCmdCommands.ps1" # Name of ps1 file with cmd list
 $logFileName =      "BatchCmd-Results.csv" # Name of csv log
 $reportFileName =   "BatchCmd-Report.csv" # Name of report file
+$displayResults =   $false # Whether to display results of commands on host
 $computerListPath = "$PSScriptRoot\$computerList" 
 $commandListPath =  "$PSScriptRoot\$commandList"
 $logFilePath =      "$PSScriptRoot\$logFileName"
@@ -196,10 +197,10 @@ foreach ($computer in (($report | Where-Object { $_.Status -eq "Fail" } ).Comput
                             ErrorVariable = "cmdError"
                         }
                         $result = ( Invoke-Command @parameters | Format-Table -AutoSize )
+                        if ($displayResults) { $result } # Display results of command
                         $cmdError = "Success"
                         $errorLog += @( [pscustomobject]@{ComputerName=$computer;Command=$command;Error=$($cmdError);Time=$(Get-TimeStamp) } ) # Write to overall log
                         Write-Host "Successfully ran command `"$command`" on $computer."
-                        #$result # To suppress result output, comment out this line
                     }
                     catch {
                         Write-Warning "Unable to run `"$command`" on $computer. See log for details."
