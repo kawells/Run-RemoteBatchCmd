@@ -40,7 +40,7 @@ function Get-FileNames {
     $fileNames = @()
     while ($selection -ne "n") {
         # If user has entered filenames, list them
-        if ($fileNames -ne $null) { 
+        if ($null -ne $fileNames) { 
             foreach ($filename in $fileNames) { Write-Host "File $filename will be uploaded to remote computers." }
             $selection = Read-Host "`nDo you need to upload any more files to the remote computers? [y/n]"
         }
@@ -114,7 +114,7 @@ try {
 catch { Write-Error "Unable to import report. Check that report file is not currently open. Exiting."; Exit }
 
 # Test to see if there are any computers that are still failed
-if ((!($report | Where-Object { $_.Status -eq "Fail" })) -And ($report -ne $null)) { Write-Host "`nAll computers in the report are successful. No further work necessary. Exiting."; Exit }
+if ((!($report | Where-Object { $_.Status -eq "Fail" })) -And ($null -ne $report)) { Write-Host "`nAll computers in the report are successful. No further work necessary. Exiting."; Exit }
 
 # Import command list separated by line or exit
 try {
